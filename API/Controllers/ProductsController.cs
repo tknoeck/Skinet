@@ -69,14 +69,19 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     [HttpGet("brands")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
     {
-        return Ok();
+        var products = await repo.ListAllAsync();  
+        var brands = products.Select(p => p.Brand).Distinct().ToList();  
+        return Ok(brands);
     }
 
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
     {
-        return Ok();
+        var products = await repo.ListAllAsync();  
+        var types = products.Select(p => p.Type).Distinct().ToList();  
+        return Ok(types);
     }
+
     private bool ProductExists(int id)
     {
         return repo.Exists(id);
