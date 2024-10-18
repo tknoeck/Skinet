@@ -1,6 +1,6 @@
 services:
   sql:
-    image: mrc.microsoft.com/azure-sql-edge
+    image: mcr.microsoft.com/azure-sql-edge
     environment:
       ACCEPT_EULA: "1"
       MSSQL_SA_PASSWORD: "Password@1"
@@ -14,6 +14,7 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+      
 volumes:
   redis-data:
   sql-data:
