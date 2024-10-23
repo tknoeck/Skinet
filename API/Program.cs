@@ -1,4 +1,5 @@
 using API.Middleware;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
@@ -22,9 +23,11 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .WithOrigins("http://localhost:4200", "https://localhost:4200");
+              .AllowCredentials()
+              .WithOrigins("http://localhost:4200", "https://localhost:4200"); 
     });
 });
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(config =>{
     var connectionString = builder.Configuration.GetConnectionString("Redis")
         ?? throw new Exception("Cannot get redis connection string");
@@ -32,12 +35,18 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>{
     return ConnectionMultiplexer.Connect(configOptions);
 });
 builder.Services.AddSingleton<ICartService, CartService>();
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<AppUser>()
+    .AddEntityFrameworkStores<StoreContext>();
+
 var app = builder.Build();
 
+app.UseCors("CorsPolicy");
 
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseCors("CorsPolicy");
+
 app.MapControllers();
+app.MapGroup("api").MapIdentityApi<AppUser>();
 
 try
 {
